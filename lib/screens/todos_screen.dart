@@ -22,6 +22,7 @@ class _TodosScreenState extends State<TodosScreen> {
                 CreateTodo(),
                 SizedBox(height: 20.0),
                 SearchAndFilterTodo(),
+                ShowTodos(),
               ],
             ),
           ),
@@ -87,11 +88,18 @@ class _CreateTodoState extends State<CreateTodo> {
   }
 }
 
-
-class SearchAndFilterTodo extends StatelessWidget {
+class SearchAndFilterTodo extends StatefulWidget {
+  //StatelessWidget
   const SearchAndFilterTodo({Key? key}) : super(key: key);
-  // final debounce = Debounce(milliseconds: 1000);
 
+  @override
+  State<SearchAndFilterTodo> createState() => _SearchAndFilterTodoState();
+}
+
+class _SearchAndFilterTodoState extends State<SearchAndFilterTodo> {
+  String clickedType = 'all';
+
+  // final debounce = Debounce(milliseconds: 1000);
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -125,17 +133,21 @@ class SearchAndFilterTodo extends StatelessWidget {
     );
   }
 
-  Widget filterButton(BuildContext context, String filter) { //, Filter filter
+  Widget filterButton(BuildContext context, String filter) {
+    //, Filter filter
     return TextButton(
       onPressed: () {
         // context.read<TodoFilter>().changeFilter(filter);
+        clickedType = filter;
+        debugPrint('Clicked button $clickedType');
+        setState(() {});
       },
       child: Text(
         filter == 'all'
             ? 'All'
             : filter == 'active'
-            ? 'Active'
-            : 'Completed',
+                ? 'Active'
+                : 'Completed',
         style: TextStyle(
           fontSize: 18.0,
           color: textColor(context, filter),
@@ -144,9 +156,92 @@ class SearchAndFilterTodo extends StatelessWidget {
     );
   }
 
-  Color textColor(BuildContext context, String filter) {//Filter filter
-    const currentFilter = 'all';//context.watch<TodoFilter>().state.filter
+  Color textColor(BuildContext context, String filter) {
+    //Filter filter
+    var currentFilter = clickedType; //context.watch<TodoFilter>().state.filter
     return currentFilter == filter ? Colors.blue : Colors.grey;
   }
 }
 
+class Todo {
+  String id;
+  String desc;
+  bool completed;
+
+  Todo({
+    required this.id,
+    required this.desc,
+    this.completed = false,
+  });
+
+}
+
+List<Todo> todos = [
+  Todo(id: '1', desc: 'Clean the room'),
+  Todo(id: '2', desc: 'Wash the dish'),
+  Todo(id: '3', desc: 'Do homework'),
+];
+
+class ShowTodos extends StatelessWidget {
+  const ShowTodos({Key? key}) : super(key: key);
+
+  Widget showBackground(int direction) {
+    return Container(
+      margin: const EdgeInsets.all(4.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      color: Colors.red,
+      alignment: direction == 0 ? Alignment.centerLeft : Alignment.centerRight,
+      child: const Icon(
+        Icons.delete,
+        size: 30.0,
+        color: Colors.white,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // final todos = context.watch<FilteredTodos>().state.filteredTodos;
+
+    return ListView.separated(
+      primary: false,
+      shrinkWrap: true,
+      itemCount: todos.length,
+      separatorBuilder: (BuildContext context, int index) {
+        return const Divider(color: Colors.grey);
+      },
+      itemBuilder: (BuildContext context, int index) {
+        return TodoItem(todo: todos[index]);
+      },
+    );
+  }
+}
+
+class TodoItem extends StatefulWidget {
+  final Todo todo;
+  const TodoItem({Key? key, required this.todo}) : super(key: key);
+
+  @override
+  _TodoItemState createState() => _TodoItemState();
+}
+
+class _TodoItemState extends State<TodoItem> {
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Checkbox(
+        value: widget.todo.completed,
+        onChanged: (bool? checked) {
+          widget.todo.completed = !widget.todo.completed;
+          debugPrint('value(${widget.todo.desc}): ${widget.todo.completed.toString()}');
+          // context.read<TodoList>().toggleTodo(widget.todo.id);
+          setState(() {
+
+          });
+        },
+      ),
+      title: Text(widget.todo.desc),
+    );
+  }
+}
