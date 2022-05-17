@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_test/provider/todo_list.dart';
 
 import 'screens/todos_screen.dart';
-
 
 void main() {
   runApp(const MyApp());
@@ -12,13 +13,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'TODOS',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    //MultiProvider 추가
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<TodoList>(create: (context) => TodoList()),
+      ],
+      child: MaterialApp(
+        title: 'TODOS',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const TodosScreen(),
       ),
-      home: const TodosScreen(),
     );
   }
 }

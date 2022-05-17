@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:todo_test/provider/todo_list.dart';
+import 'package:provider/provider.dart';
+
+import '../models/todo_model.dart';
 
 class TodosScreen extends StatefulWidget {
   const TodosScreen({Key? key}) : super(key: key);
@@ -78,11 +82,11 @@ class _CreateTodoState extends State<CreateTodo> {
       controller: newTodoController,
       decoration: const InputDecoration(labelText: 'What to do?'),
       onFieldSubmitted: (String? todoDesc) {
-        debugPrint('CreateTodo Clicked: ${newTodoController.text}');
-        // if (todoDesc != null && todoDesc.trim().isNotEmpty) {
-        //   context.read<TodoList>().addTodo(todoDesc);
-        //   newTodoController.clear();
-        // }
+        if (todoDesc != null && todoDesc.trim().isNotEmpty) {
+          debugPrint('CreateTodo Clicked: ${todoDesc.toString()}');
+          context.read<TodoList>().addTodo(todoDesc);
+          newTodoController.clear();
+        }
       },
     );
   }
@@ -163,24 +167,25 @@ class _SearchAndFilterTodoState extends State<SearchAndFilterTodo> {
   }
 }
 
-class Todo {
-  String id;
-  String desc;
-  bool completed;
-
-  Todo({
-    required this.id,
-    required this.desc,
-    this.completed = false,
-  });
-
-}
-
-List<Todo> todos = [
-  Todo(id: '1', desc: 'Clean the room'),
-  Todo(id: '2', desc: 'Wash the dish'),
-  Todo(id: '3', desc: 'Do homework'),
-];
+// => todo_model.dart
+// class Todo {
+//   String id;
+//   String desc;
+//   bool completed;
+//
+//   Todo({
+//     required this.id,
+//     required this.desc,
+//     this.completed = false,
+//   });
+//
+// }
+//
+// List<Todo> todos = [
+//   Todo(id: '1', desc: 'Clean the room'),
+//   Todo(id: '2', desc: 'Wash the dish'),
+//   Todo(id: '3', desc: 'Do homework'),
+// ];
 
 class ShowTodos extends StatelessWidget {
   const ShowTodos({Key? key}) : super(key: key);
@@ -201,7 +206,8 @@ class ShowTodos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final todos = context.watch<FilteredTodos>().state.filteredTodos;
+    // 현재는 초기화 되는 부분에서 가져오지만 차후에는 필더리스트 가져오기.
+    final todos = context.watch<TodoList>().state.todos;
 
     return ListView.separated(
       primary: false,
@@ -226,19 +232,20 @@ class TodoItem extends StatefulWidget {
 }
 
 class _TodoItemState extends State<TodoItem> {
-
   @override
   Widget build(BuildContext context) {
+    debugPrint('todo list : ${widget.todo}');
+
     return ListTile(
       leading: Checkbox(
         value: widget.todo.completed,
         onChanged: (bool? checked) {
-          widget.todo.completed = !widget.todo.completed;
-          debugPrint('value(${widget.todo.desc}): ${widget.todo.completed.toString()}');
-          // context.read<TodoList>().toggleTodo(widget.todo.id);
-          setState(() {
-
-          });
+          // 토글함수
+          context.read<TodoList>().toggleTodo(widget.todo.id);
+          debugPrint(
+              'value(${widget.todo.desc}): ${widget.todo.completed.toString()}');
+          // provider 처리해서 필요없음
+          // setState(() {});
         },
       ),
       title: Text(widget.todo.desc),
