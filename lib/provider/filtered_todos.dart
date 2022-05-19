@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import '../models/todo_model.dart';
 import 'providers.dart';
 
-
 class FilteredTodosState extends Equatable {
   final List<Todo> filteredTodos;
   const FilteredTodosState({
@@ -21,7 +20,6 @@ class FilteredTodosState extends Equatable {
   @override
   bool get stringify => true;
 
-
   FilteredTodosState copyWith({
     List<Todo>? filteredTodos,
   }) {
@@ -36,10 +34,10 @@ class FilteredTodos with ChangeNotifier {
   FilteredTodosState get state => _state;
 
   void update(
-      TodoFilter todoFilter,
-      // TodoSearch todoSearch,
-      TodoList todoList,
-      ) {
+    TodoFilter todoFilter,
+    TodoSearch todoSearch, // 인자추가
+    TodoList todoList,
+  ) {
     List<Todo> _filteredTodos;
     // debugPrint('update 내부1: ' + todoList.state.todos.where((Todo todo) => !todo.completed).toString());
     // debugPrint('update 내부2: ' + todoList.state.todos.where((Todo todo) => !todo.completed).toList().toString());
@@ -59,13 +57,13 @@ class FilteredTodos with ChangeNotifier {
         _filteredTodos = todoList.state.todos;
         break;
     }
-
-    // if (todoSearch.state.searchTerm.isNotEmpty) {
-    //   _filteredTodos = _filteredTodos
-    //       .where((Todo todo) =>
-    //       todo.desc.toLowerCase().contains(todoSearch.state.searchTerm))
-    //       .toList();
-    // }
+    // 로직 추가
+    if (todoSearch.state.searchTerm.isNotEmpty) {
+      _filteredTodos = _filteredTodos
+          .where((Todo todo) =>
+              todo.desc.toLowerCase().contains(todoSearch.state.searchTerm))
+          .toList();
+    }
 
     _state = _state.copyWith(filteredTodos: _filteredTodos);
     notifyListeners();

@@ -110,11 +110,11 @@ class SearchAndFilterTodo extends StatelessWidget {
           ),
           onChanged: (String? newSearchTerm) {
             debugPrint('Search todos: $newSearchTerm');
-            // if (newSearchTerm != null) {
+            if (newSearchTerm != null) {
             //   debounce.run(() {
-            //     context.read<TodoSearch>().setSearchTerm(newSearchTerm);
+                context.read<TodoSearch>().setSearchTerm(newSearchTerm);
             //   });
-            // }
+            }
           },
         ),
         const SizedBox(height: 10.0),
