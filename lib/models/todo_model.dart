@@ -25,3 +25,9 @@ class Todo extends Equatable{
     return 'Todo{id: $id, completed: $completed, desc: $desc}';
   }
 }
+
+enum Filter {
+  all,
+  active,
+  completed,
+}

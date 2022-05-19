@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:todo_test/provider/todo_list.dart';
 
+import 'provider/providers.dart';
 import 'screens/todos_screen.dart';
 
 void main() {
@@ -17,6 +17,16 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<TodoList>(create: (context) => TodoList()),
+        ChangeNotifierProvider<TodoFilter>(create: (context) => TodoFilter()),
+        ChangeNotifierProxyProvider2<TodoFilter, TodoList, FilteredTodos>(
+            create: (context) => FilteredTodos(),
+            update: (
+              BuildContext context,
+              TodoFilter todoFilter,
+              // TodoSearch todoSearch,
+              TodoList todoList,
+              FilteredTodos? filteredTodos,
+            ) => filteredTodos!..update(todoFilter, todoList)),
       ],
       child: MaterialApp(
         title: 'TODOS',

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:todo_test/provider/todo_list.dart';
 import 'package:provider/provider.dart';
 
 import '../models/todo_model.dart';
+import '../provider/providers.dart';
 
 class TodosScreen extends StatefulWidget {
   const TodosScreen({Key? key}) : super(key: key);
@@ -92,16 +92,9 @@ class _CreateTodoState extends State<CreateTodo> {
   }
 }
 
-class SearchAndFilterTodo extends StatefulWidget {
-  //StatelessWidget
+// StatefulWidget => StatelessWidget 변경.
+class SearchAndFilterTodo extends StatelessWidget {
   const SearchAndFilterTodo({Key? key}) : super(key: key);
-
-  @override
-  State<SearchAndFilterTodo> createState() => _SearchAndFilterTodoState();
-}
-
-class _SearchAndFilterTodoState extends State<SearchAndFilterTodo> {
-  String clickedType = 'all';
 
   // final debounce = Debounce(milliseconds: 1000);
   @override
@@ -128,28 +121,26 @@ class _SearchAndFilterTodoState extends State<SearchAndFilterTodo> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            filterButton(context, 'all'),
-            filterButton(context, 'active'),
-            filterButton(context, 'completed'),
+            filterButton(context, Filter.all),
+            filterButton(context, Filter.active),
+            filterButton(context, Filter.completed),
           ],
         ),
       ],
     );
   }
 
-  Widget filterButton(BuildContext context, String filter) {
-    //, Filter filter
+  Widget filterButton(BuildContext context, Filter filter) {
     return TextButton(
       onPressed: () {
-        // context.read<TodoFilter>().changeFilter(filter);
-        clickedType = filter;
-        debugPrint('Clicked button $clickedType');
-        setState(() {});
+        context.read<TodoFilter>().changeFilter(filter);
+        // clickedType = filter;
+        debugPrint('Clicked button ${context.read<TodoFilter>().state.filter}');
       },
       child: Text(
-        filter == 'all'
+        filter == Filter.all
             ? 'All'
-            : filter == 'active'
+            : filter == Filter.active
                 ? 'Active'
                 : 'Completed',
         style: TextStyle(
@@ -160,32 +151,11 @@ class _SearchAndFilterTodoState extends State<SearchAndFilterTodo> {
     );
   }
 
-  Color textColor(BuildContext context, String filter) {
-    //Filter filter
-    var currentFilter = clickedType; //context.watch<TodoFilter>().state.filter
+  Color textColor(BuildContext context, Filter filter) {
+    var currentFilter = context.watch<TodoFilter>().state.filter;
     return currentFilter == filter ? Colors.blue : Colors.grey;
   }
 }
-
-// => todo_model.dart
-// class Todo {
-//   String id;
-//   String desc;
-//   bool completed;
-//
-//   Todo({
-//     required this.id,
-//     required this.desc,
-//     this.completed = false,
-//   });
-//
-// }
-//
-// List<Todo> todos = [
-//   Todo(id: '1', desc: 'Clean the room'),
-//   Todo(id: '2', desc: 'Wash the dish'),
-//   Todo(id: '3', desc: 'Do homework'),
-// ];
 
 class ShowTodos extends StatelessWidget {
   const ShowTodos({Key? key}) : super(key: key);
@@ -206,8 +176,9 @@ class ShowTodos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 현재는 초기화 되는 부분에서 가져오지만 차후에는 필더리스트 가져오기.
-    final todos = context.watch<TodoList>().state.todos;
+    // TodoList => FilteredTodos 로 변경
+    // final todos = context.watch<TodoList>().state.todos;
+    final todos = context.watch<FilteredTodos>().state.filteredTodos;
 
     return ListView.separated(
       primary: false,
