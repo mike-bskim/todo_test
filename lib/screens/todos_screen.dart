@@ -43,14 +43,14 @@ class TodoHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: const [
-        Text(
+      children: [
+        const Text(
           'TODO',
           style: TextStyle(fontSize: 40.0),
         ),
         Text(
-          '0 items left',
-          style: TextStyle(
+          '${context.watch<TodoActiveCount>().state.todoActiveCount} items left',
+          style: const TextStyle(
             fontSize: 20.0,
             color: Colors.redAccent,
           ),
@@ -111,9 +111,9 @@ class SearchAndFilterTodo extends StatelessWidget {
           onChanged: (String? newSearchTerm) {
             debugPrint('Search todos: $newSearchTerm');
             if (newSearchTerm != null) {
-            //   debounce.run(() {
-                context.read<TodoSearch>().setSearchTerm(newSearchTerm);
-            //   });
+              //   debounce.run(() {
+              context.read<TodoSearch>().setSearchTerm(newSearchTerm);
+              //   });
             }
           },
         ),
@@ -196,6 +196,7 @@ class ShowTodos extends StatelessWidget {
 
 class TodoItem extends StatefulWidget {
   final Todo todo;
+
   const TodoItem({Key? key, required this.todo}) : super(key: key);
 
   @override
