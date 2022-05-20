@@ -19,30 +19,34 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<TodoList>(create: (context) => TodoList()),
         ChangeNotifierProvider<TodoFilter>(create: (context) => TodoFilter()),
         ChangeNotifierProvider<TodoSearch>(create: (context) => TodoSearch()),
-        ChangeNotifierProxyProvider3<TodoFilter, TodoSearch, TodoList,
-            FilteredTodos>(
-          create: (context) => FilteredTodos(
-            initFilteredTodos: context.read<TodoList>().state.todos,
-          ),
+        ProxyProvider3<TodoFilter, TodoSearch, TodoList, FilteredTodos>(
+          // create: (context) => FilteredTodos(
+          //   initFilteredTodos: context.read<TodoList>().state.todos,
+          // ),
           update: (
             BuildContext context,
             TodoFilter todoFilter,
             TodoSearch todoSearch,
             TodoList todoList,
-            FilteredTodos? filteredTodos,
+            FilteredTodos? _,
           ) =>
-              filteredTodos!..update(todoFilter, todoSearch, todoList),
-        ),
-        ChangeNotifierProxyProvider<TodoList, TodoActiveCount>(
-          create: (context) => TodoActiveCount(
-            initTodoActiveCount: context.read<TodoList>().state.todos.length,
+              FilteredTodos(
+            todoList: todoList,
+            todoFilter: todoFilter,
+            todoSearch: todoSearch
           ),
+        ),
+        ProxyProvider<TodoList, TodoActiveCount>(
+          // create: (context) => TodoActiveCount(
+          //   initTodoActiveCount: context.read<TodoList>().state.todos.length,
+          // ),
+          // 생성시 TodoList 를 확인해서 초기화하지 않아도 update 시 처리됨.
           update: (
             BuildContext context,
             TodoList todoList,
-            TodoActiveCount? todoActiveCount,
+            TodoActiveCount? _,
           ) =>
-              todoActiveCount!..update(todoList),
+              TodoActiveCount(todoList: todoList),
         )
       ],
       child: MaterialApp(

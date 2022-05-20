@@ -1,11 +1,11 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 
 import '../models/todo_model.dart';
 import 'providers.dart';
 
 class FilteredTodosState extends Equatable {
   final List<Todo> filteredTodos;
+
   const FilteredTodosState({
     required this.filteredTodos,
   });
@@ -29,26 +29,19 @@ class FilteredTodosState extends Equatable {
   }
 }
 
-class FilteredTodos with ChangeNotifier {
-  // FilteredTodosState _state = FilteredTodosState.initial();
-  late FilteredTodosState _state;
-  final List<Todo> initFilteredTodos;
+class FilteredTodos {
+  final TodoList todoList;
+  final TodoFilter todoFilter;
+  final TodoSearch todoSearch;
+  FilteredTodos({
+    required this.todoList,
+    required this.todoFilter,
+    required this.todoSearch,
+  });
 
-  FilteredTodos({required this.initFilteredTodos}){
-    debugPrint('initFilteredTodos: ' + initFilteredTodos.toString());
-    _state = FilteredTodosState(filteredTodos: initFilteredTodos);
-  }
 
-  FilteredTodosState get state => _state;
-
-  void update(
-    TodoFilter todoFilter,
-    TodoSearch todoSearch, // 인자추가
-    TodoList todoList,
-  ) {
+  FilteredTodosState get state {
     List<Todo> _filteredTodos;
-    // debugPrint('update 내부1: ' + todoList.state.todos.where((Todo todo) => !todo.completed).toString());
-    // debugPrint('update 내부2: ' + todoList.state.todos.where((Todo todo) => !todo.completed).toList().toString());
 
     // 핵심 부분. 필터의 조건에 맞는 리스트를 만드는 기능
     switch (todoFilter.state.filter) {
@@ -73,8 +66,6 @@ class FilteredTodos with ChangeNotifier {
           .toList();
     }
 
-    _state = _state.copyWith(filteredTodos: _filteredTodos);
-    debugPrint('update - filtered todo: ' + _state.toString());
-    notifyListeners();
+    return FilteredTodosState(filteredTodos: _filteredTodos);
   }
 }
