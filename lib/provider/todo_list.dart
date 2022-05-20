@@ -5,6 +5,7 @@ import '../models/todo_model.dart';
 
 class TodoListState extends Equatable {
   final List<Todo> todos;
+
   const TodoListState({
     required this.todos,
   });
@@ -39,22 +40,47 @@ class TodoListState extends Equatable {
 
 class TodoList with ChangeNotifier {
   TodoListState _state = TodoListState.init();
+
   TodoListState get state => _state;
 
   // 리스트 추가
   void addTodo(String todoDesc) {
     int? newNum;
-    if(_state.todos.isEmpty){
+    if (_state.todos.isEmpty) {
       newNum = 1;
     } else {
       // 마지막 id 에서 1 증가
-      newNum = int.parse(_state.todos.last.id)+1;
+      newNum = int.parse(_state.todos.last.id) + 1;
     }
-    final newTodo = Todo(id: newNum.toString(),desc: todoDesc);
+    final newTodo = Todo(id: newNum.toString(), desc: todoDesc);
     final newTodos = [..._state.todos, newTodo];
 
     // 리스트 새로 복사&생성
     _state = _state.copyWith(todos: newTodos);
+    debugPrint('addTodo: ' + _state.toString());
+    notifyListeners();
+  }
+
+  void editTodo(String id, String desc) {
+    final newTodos = _state.todos.map((Todo todo) {
+      if (todo.id == id) {
+        return Todo(
+          id: id,
+          desc: desc,
+          completed: todo.completed,
+        );
+      }
+      return todo;
+    }).toList();
+
+    _state = _state.copyWith(todos: newTodos);
+    notifyListeners();
+  }
+
+  void removeTodo(String id) {
+    final newTodos = _state.todos.where((Todo todo) => todo.id != id).toList();
+    _state = _state.copyWith(todos: newTodos);
+    debugPrint('remove Todos: ' + _state.toString());
     notifyListeners();
   }
 
@@ -76,5 +102,4 @@ class TodoList with ChangeNotifier {
     _state = _state.copyWith(todos: newTodos);
     notifyListeners();
   }
-
 }
