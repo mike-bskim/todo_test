@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:state_notifier/state_notifier.dart';
 import 'package:todo_test/provider/providers.dart';
 
 import '../models/todo_model.dart';
@@ -30,14 +31,28 @@ class TodoActiveCountState extends Equatable {
   }
 }
 
-class TodoActiveCount {
-  final TodoList todoList;
-  TodoActiveCount({required this.todoList});
+class TodoActiveCount extends StateNotifier<TodoActiveCountState>
+    with LocatorMixin {
+  // final TodoList todoList;
+  // TodoActiveCount({required this.todoList});
+  TodoActiveCount() : super(TodoActiveCountState.init());
 
-  TodoActiveCountState get state => TodoActiveCountState(
-        todoActiveCount: todoList.state.todos
-            .where((Todo todo) => !todo.completed)
-            .toList()
-            .length,
-      );
+  @override
+  void update(Locator watch) {
+    final List<Todo> todos = watch<TodoListState>().todos;
+    state = state.copyWith(
+        todoActiveCount:
+            todos.where((Todo todo) => !todo.completed).toList().length);
+    super.update(watch);
+  }
+
+
+
+// TodoActiveCountState get state => TodoActiveCountState(
+//       todoActiveCount: todoList.state.todos
+//           .where((Todo todo) => !todo.completed)
+//           .toList()
+//           .length,
+//     );
+
 }

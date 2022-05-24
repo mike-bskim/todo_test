@@ -20,7 +20,7 @@ class _TodosScreenState extends State<TodosScreen> {
         body: SingleChildScrollView(
           child: Padding(
             padding:
-            const EdgeInsets.symmetric(horizontal: 20.0, vertical: 40.0),
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 40.0),
             child: Column(
               children: [
                 const TodoHeader(),
@@ -50,11 +50,7 @@ class TodoHeader extends StatelessWidget {
           style: TextStyle(fontSize: 40.0),
         ),
         Text(
-          // '${context.watch<TodoActiveCount>().state.todoActiveCount} items left',
-          '${Provider
-              .of<TodoActiveCount>(context)
-              .state
-              .todoActiveCount} items left',
+          '${context.watch<TodoActiveCountState>().todoActiveCount} items left',
           style: const TextStyle(
             fontSize: 20.0,
             color: Colors.redAccent,
@@ -87,9 +83,7 @@ class _CreateTodoState extends State<CreateTodo> {
       controller: newTodoController,
       decoration: const InputDecoration(labelText: 'What to do?'),
       onFieldSubmitted: (String? todoDesc) {
-        if (todoDesc != null && todoDesc
-            .trim()
-            .isNotEmpty) {
+        if (todoDesc != null && todoDesc.trim().isNotEmpty) {
           debugPrint('CreateTodo Clicked: ${todoDesc.toString()}');
           context.read<TodoList>().addTodo(todoDesc);
           newTodoController.clear();
@@ -117,10 +111,10 @@ class SearchAndFilterTodo extends StatelessWidget {
           ),
           onChanged: (String? newSearchTerm) {
             if (newSearchTerm != null) {
-                debounce.run(() {
-                  debugPrint('Search todos: $newSearchTerm');
-                  context.read<TodoSearch>().setSearchTerm(newSearchTerm);
-                });
+              debounce.run(() {
+                debugPrint('Search todos: $newSearchTerm');
+                context.read<TodoSearch>().setSearchTerm(newSearchTerm);
+              });
             }
           },
         ),
@@ -142,17 +136,14 @@ class SearchAndFilterTodo extends StatelessWidget {
       onPressed: () {
         context.read<TodoFilter>().changeFilter(filter);
         // clickedType = filter;
-        debugPrint('Clicked button ${context
-            .read<TodoFilter>()
-            .state
-            .filter}');
+        debugPrint('Clicked button ${context.read<TodoFilterState>().filter}');
       },
       child: Text(
         filter == Filter.all
             ? 'All'
             : filter == Filter.active
-            ? 'Active'
-            : 'Completed',
+                ? 'Active'
+                : 'Completed',
         style: TextStyle(
           fontSize: 18.0,
           color: textColor(context, filter),
@@ -163,18 +154,12 @@ class SearchAndFilterTodo extends StatelessWidget {
   }
 
   Color textColor(BuildContext context, Filter filter) {
-    var currentFilter = context
-        .watch<TodoFilter>()
-        .state
-        .filter;
+    var currentFilter = context.watch<TodoFilterState>().filter;
     return currentFilter == filter ? Colors.blueAccent : Colors.grey;
   }
 
   FontWeight textFontWeight(BuildContext context, Filter filter) {
-    var currentFilter = context
-        .watch<TodoFilter>()
-        .state
-        .filter;
+    var currentFilter = context.watch<TodoFilterState>().filter;
     return currentFilter == filter ? FontWeight.bold : FontWeight.normal;
   }
 }
@@ -200,10 +185,7 @@ class ShowTodos extends StatelessWidget {
   Widget build(BuildContext context) {
     // TodoList => FilteredTodos 로 변경
     // final todos = context.watch<TodoList>().state.todos;
-    final todos = context
-        .watch<FilteredTodos>()
-        .state
-        .filteredTodos;
+    final todos = context.watch<FilteredTodosState>().filteredTodos;
 
     return ListView.separated(
       primary: false,
@@ -284,7 +266,8 @@ class _TodoItemState extends State<TodoItem> {
           builder: (context) {
             bool _error = false;
             textController.text = widget.todo.desc;
-            return StatefulBuilder( // errorText 를 다시 그려야 해서 사용함.
+            return StatefulBuilder(
+              // errorText 를 다시 그려야 해서 사용함.
               builder: (BuildContext context, StateSetter setState) {
                 return AlertDialog(
                   title: const Text('Edit Todo'),
@@ -305,11 +288,12 @@ class _TodoItemState extends State<TodoItem> {
                         setState(() {
                           _error = textController.text.isEmpty ? true : false;
 
-                          if (!_error) { // if empty, skip if.
+                          if (!_error) {
+                            // if empty, skip if.
                             context.read<TodoList>().editTodo(
-                              widget.todo.id,
-                              textController.text,
-                            );
+                                  widget.todo.id,
+                                  textController.text,
+                                );
                             Navigator.pop(context);
                           }
                         });
@@ -328,8 +312,7 @@ class _TodoItemState extends State<TodoItem> {
         onChanged: (bool? checked) {
           context.read<TodoList>().toggleTodo(widget.todo.id);
           debugPrint(
-              'value(${widget.todo.desc}): ${widget.todo.completed
-                  .toString()}');
+              'value(${widget.todo.desc}): ${widget.todo.completed.toString()}');
         },
       ),
       title: Text(widget.todo.desc),

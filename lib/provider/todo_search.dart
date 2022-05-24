@@ -1,8 +1,10 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
+// import 'package:flutter/foundation.dart';
+import 'package:state_notifier/state_notifier.dart';
 
 class TodoSearchState extends Equatable {
   final String searchTerm;
+
   const TodoSearchState({
     required this.searchTerm,
   });
@@ -26,12 +28,13 @@ class TodoSearchState extends Equatable {
   }
 }
 
-class TodoSearch with ChangeNotifier {
-  TodoSearchState _state = TodoSearchState.init();
-  TodoSearchState get state => _state;
+class TodoSearch extends StateNotifier<TodoSearchState> {
+  // TodoSearchState _state = TodoSearchState.init();
+  // TodoSearchState get state => _state;
+  TodoSearch() : super(TodoSearchState.init());
 
   void setSearchTerm(String newSearchTerm) {
-    _state = _state.copyWith(searchTerm: newSearchTerm);
-    notifyListeners();
+    state = state.copyWith(searchTerm: newSearchTerm);
+    // notifyListeners();
   }
 }
