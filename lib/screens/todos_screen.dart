@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
+import '../controller/getx_todo_active_count.dart';
 import '../models/todo_model.dart';
 import '../provider/providers.dart';
 import '../utils/debounce.dart';
@@ -13,6 +15,8 @@ class TodosScreen extends StatefulWidget {
 }
 
 class _TodosScreenState extends State<TodosScreen> {
+  GetXTodoActiveCount controller = Get.put(GetXTodoActiveCount());
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -56,6 +60,15 @@ class TodoHeader extends StatelessWidget {
             color: Colors.redAccent,
           ),
         ),
+        Obx(() {
+          return Text(
+            '${GetXTodoActiveCount.to.count} by GetX',
+            style: const TextStyle(
+              fontSize: 20.0,
+              color: Colors.redAccent,
+            ),
+          );
+        }),
       ],
     );
   }
@@ -84,7 +97,7 @@ class _CreateTodoState extends State<CreateTodo> {
       decoration: const InputDecoration(labelText: 'What to do?'),
       onFieldSubmitted: (String? todoDesc) {
         if (todoDesc != null && todoDesc.trim().isNotEmpty) {
-          debugPrint('CreateTodo Clicked: ${todoDesc.toString()}');
+          // debugPrint('CreateTodo Clicked: ${todoDesc.toString()}');
           context.read<TodoList>().addTodo(todoDesc);
           newTodoController.clear();
         }
@@ -112,7 +125,7 @@ class SearchAndFilterTodo extends StatelessWidget {
           onChanged: (String? newSearchTerm) {
             if (newSearchTerm != null) {
               debounce.run(() {
-                debugPrint('Search todos: $newSearchTerm');
+                // debugPrint('Search todos: $newSearchTerm');
                 context.read<TodoSearch>().setSearchTerm(newSearchTerm);
               });
             }
@@ -184,8 +197,14 @@ class ShowTodos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TodoList => FilteredTodos 로 변경
-    // final todos = context.watch<TodoList>().state.todos;
     final todos = context.watch<FilteredTodosState>().filteredTodos;
+    final todosFull = context.watch<TodoListState>().todos;
+
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      debugPrint('screen >> ShowTodos >> build >> GetXTodoActiveCount.to.putNumber');
+      GetXTodoActiveCount.to.putNumber(
+          todosFull.where((Todo todo) => !todo.completed).toList().length);
+    });
 
     return ListView.separated(
       primary: false,
@@ -311,8 +330,8 @@ class _TodoItemState extends State<TodoItem> {
         value: widget.todo.completed,
         onChanged: (bool? checked) {
           context.read<TodoList>().toggleTodo(widget.todo.id);
-          debugPrint(
-              'value(${widget.todo.desc}): ${widget.todo.completed.toString()}');
+          // debugPrint(
+          //     'value(${widget.todo.desc}): ${widget.todo.completed.toString()}');
         },
       ),
       title: Text(widget.todo.desc),

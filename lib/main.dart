@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_state_notifier/flutter_state_notifier.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 // import 'package:state_notifier/state_notifier.dart';
 
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
             create: (context) => FilteredTodos()),
 
       ],
-      child: MaterialApp(
+      child: GetMaterialApp(
         title: 'TODOS',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(

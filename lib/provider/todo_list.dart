@@ -44,7 +44,6 @@ class TodoList extends StateNotifier<TodoListState> {
   // TodoListState get state => _state;
   TodoList() : super(TodoListState.init());
 
-
   // 리스트 추가
   void addTodo(String todoDesc) {
     int? newNum;
@@ -59,7 +58,7 @@ class TodoList extends StateNotifier<TodoListState> {
 
     // 리스트 새로 복사&생성
     state = state.copyWith(todos: newTodos);
-    debugPrint('addTodo: ' + state.toString());
+    // debugPrint('addTodo: ' + state.toString());
     // notifyListeners();
   }
 
