@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import 'bindings/todo_binding.dart';
 import 'screens/todos_screen.dart';
 
 
@@ -12,7 +14,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
+      initialBinding: TodoBinding(),
       title: 'TODOS',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

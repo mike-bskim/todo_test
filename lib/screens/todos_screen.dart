@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:todo_test/controller/todo_list_controller.dart';
+
+import '../model/todo_model.dart';
 
 class TodosScreen extends StatefulWidget {
   const TodosScreen({Key? key}) : super(key: key);
@@ -163,25 +167,6 @@ class _SearchAndFilterTodoState extends State<SearchAndFilterTodo> {
   }
 }
 
-class Todo {
-  String id;
-  String desc;
-  bool completed;
-
-  Todo({
-    required this.id,
-    required this.desc,
-    this.completed = false,
-  });
-
-}
-
-List<Todo> todos = [
-  Todo(id: '1', desc: 'Clean the room'),
-  Todo(id: '2', desc: 'Wash the dish'),
-  Todo(id: '3', desc: 'Do homework'),
-];
-
 class ShowTodos extends StatelessWidget {
   const ShowTodos({Key? key}) : super(key: key);
 
@@ -203,22 +188,27 @@ class ShowTodos extends StatelessWidget {
   Widget build(BuildContext context) {
     // final todos = context.watch<FilteredTodos>().state.filteredTodos;
 
-    return ListView.separated(
-      primary: false,
-      shrinkWrap: true,
-      itemCount: todos.length,
-      separatorBuilder: (BuildContext context, int index) {
-        return const Divider(color: Colors.grey);
-      },
-      itemBuilder: (BuildContext context, int index) {
-        return TodoItem(todo: todos[index]);
-      },
-    );
+    return Obx(() {
+      final currentTodos = Todos.to.todos;
+
+      return ListView.separated(
+        primary: false,
+        shrinkWrap: true,
+        itemCount: currentTodos.length,
+        separatorBuilder: (BuildContext context, int index) {
+          return const Divider(color: Colors.grey);
+        },
+        itemBuilder: (BuildContext context, int index) {
+          return TodoItem(todo: currentTodos[index]);
+        },
+      );
+    });
   }
 }
 
 class TodoItem extends StatefulWidget {
   final Todo todo;
+
   const TodoItem({Key? key, required this.todo}) : super(key: key);
 
   @override
@@ -226,19 +216,13 @@ class TodoItem extends StatefulWidget {
 }
 
 class _TodoItemState extends State<TodoItem> {
-
   @override
   Widget build(BuildContext context) {
     return ListTile(
       leading: Checkbox(
         value: widget.todo.completed,
         onChanged: (bool? checked) {
-          widget.todo.completed = !widget.todo.completed;
-          debugPrint('value(${widget.todo.desc}): ${widget.todo.completed.toString()}');
-          // context.read<TodoList>().toggleTodo(widget.todo.id);
-          setState(() {
-
-          });
+          debugPrint('clicked toggle button~~');
         },
       ),
       title: Text(widget.todo.desc),
