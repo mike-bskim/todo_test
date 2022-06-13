@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
-import '../controller/getx_todo_active_count.dart';
+import '../controller/getx_count_controller.dart';
+import '../controller/getx_filtered_controller.dart';
 import '../models/todo_model.dart';
 import '../provider/providers.dart';
 import '../utils/debounce.dart';
@@ -15,7 +16,8 @@ class TodosScreen extends StatefulWidget {
 }
 
 class _TodosScreenState extends State<TodosScreen> {
-  GetXTodoActiveCount controller = Get.put(GetXTodoActiveCount());
+  GetXCountController countCtrl = Get.put(GetXCountController());
+  GetXFilteredController filteredCtrl = Get.put(GetXFilteredController());
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +64,7 @@ class TodoHeader extends StatelessWidget {
         ),
         Obx(() {
           return Text(
-            '${GetXTodoActiveCount.to.count} by GetX',
+            '${GetXCountController.to.count} by GetX',
             style: const TextStyle(
               fontSize: 20.0,
               color: Colors.redAccent,
@@ -127,6 +129,11 @@ class SearchAndFilterTodo extends StatelessWidget {
               debounce.run(() {
                 // debugPrint('Search todos: $newSearchTerm');
                 context.read<TodoSearch>().setSearchTerm(newSearchTerm);
+                GetXFilteredController.to.filteredTodosUpdate(
+                  context.read<TodoFilterState>().filter,
+                  context.read<TodoSearchState>().searchTerm,
+                  context.read<TodoListState>().todos,
+                );
               });
             }
           },
@@ -145,6 +152,14 @@ class SearchAndFilterTodo extends StatelessWidget {
   }
 
   Widget filterButton(BuildContext context, Filter filter) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      GetXFilteredController.to.filteredTodosUpdate(
+        context.read<TodoFilterState>().filter,
+        context.read<TodoSearchState>().searchTerm,
+        context.read<TodoListState>().todos,
+      );
+    });
+
     return TextButton(
       onPressed: () {
         context.read<TodoFilter>().changeFilter(filter);
@@ -197,55 +212,72 @@ class ShowTodos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TodoList => FilteredTodos 로 변경
-    final todos = context.watch<FilteredTodosState>().filteredTodos;
+    // final todos = context.watch<FilteredTodosState>().filteredTodos;
+    GetXFilteredController.to.filteredTodosUpdate(
+      context.read<TodoFilterState>().filter,
+      context.read<TodoSearchState>().searchTerm,
+      context.read<TodoListState>().todos,
+    );
+    // final todos = GetXFilteredController.to.filteredTodos;
     final todosFull = context.watch<TodoListState>().todos;
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      debugPrint('screen >> ShowTodos >> build >> GetXTodoActiveCount.to.putNumber');
-      GetXTodoActiveCount.to.putNumber(
+      debugPrint(
+          'screen >> ShowTodos >> build >> GetXTodoActiveCount.to.putNumber');
+      GetXCountController.to.putNumber(
           todosFull.where((Todo todo) => !todo.completed).toList().length);
+      // todos = GetXFilteredController.to.filteredTodos;
     });
 
-    return ListView.separated(
-      primary: false,
-      shrinkWrap: true,
-      itemCount: todos.length,
-      separatorBuilder: (BuildContext context, int index) {
-        return const Divider(color: Colors.grey);
-      },
-      itemBuilder: (BuildContext context, int index) {
-        return Dismissible(
-          key: ValueKey(todos[index].id),
-          background: showBackground(0),
-          secondaryBackground: showBackground(1),
-          onDismissed: (_) {
-            context.read<TodoList>().removeTodo(todos[index].id);
-          },
-          confirmDismiss: (_) {
-            return showDialog(
-              context: context,
-              barrierDismissible: false, // 다이얼로그 외부 클릭시 없어지지 않음
-              builder: (context) {
-                return AlertDialog(
-                  title: const Text('Are you sure?'),
-                  content: const Text('Do you really want to delete?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('NO'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text('YES'),
-                    ),
-                  ],
-                );
-              },
-            );
-          },
-          child: TodoItem(todo: todos[index]),
-        );
-      },
+    debugPrint('filted length:' +
+        GetXFilteredController.to.filteredTodos.length.toString());
+
+    return Obx(
+      () => ListView.separated(
+        primary: false,
+        shrinkWrap: true,
+        itemCount: GetXFilteredController.to.filteredTodos.length,
+        //todos.length,
+        separatorBuilder: (BuildContext context, int index) {
+          return const Divider(color: Colors.grey);
+        },
+        itemBuilder: (BuildContext context, int index) {
+          return Dismissible(
+            key: ValueKey(GetXFilteredController.to.filteredTodos[index].id),
+            background: showBackground(0),
+            secondaryBackground: showBackground(1),
+            onDismissed: (_) {
+              // context.read<TodoList>().removeTodo(todos[index].id);
+              context.read<TodoList>().removeTodo(
+                  GetXFilteredController.to.filteredTodos[index].id);
+            },
+            confirmDismiss: (_) {
+              return showDialog(
+                context: context,
+                barrierDismissible: false, // 다이얼로그 외부 클릭시 없어지지 않음
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Are you sure?'),
+                    content: const Text('Do you really want to delete?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('NO'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text('YES'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child:
+                TodoItem(todo: GetXFilteredController.to.filteredTodos[index]),
+          );
+        },
+      ),
     );
   }
 }
